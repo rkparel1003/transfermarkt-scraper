@@ -1,6 +1,6 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
-import pandas as pd
+
 
 class ClubScraper:
     def __init__(self, url):
@@ -10,7 +10,7 @@ class ClubScraper:
         self._current_player_number = int()
 
     def _find_player_number(self, tag):
-        number_tag = tag.find_next("td", {"class":"zentriert"})
+        number_tag = tag.find_next("td", {"class": "zentriert"})
         self._current_player_number = number_tag.getText()
         self._player_dict[self._current_player_number] = dict()
         self._player_dict[self._current_player_number]["number"] = number_tag.getText()
@@ -31,7 +31,7 @@ class ClubScraper:
         self._player_dict[self._current_player_number]["name"] = player_name
 
     def _find_player_birthday(self, tag):
-        birthday_tag = tag.find_next("td", {"class":"zentriert"})
+        birthday_tag = tag.find_next("td", {"class": "zentriert"})
         self._player_dict[self._current_player_number]["birthday"] = birthday_tag.getText()
         return birthday_tag
 
@@ -77,16 +77,15 @@ class ClubScraper:
         value_tag = self._find_player_value(contract_tag)
 
     def _scrape_table(self, row_type):
-        for player in self._table.findAll("tr", {"class":row_type}):
+        for player in self._table.findAll("tr", {"class": row_type}):
             self._scrape_row(player)
-
 
     def scrape_club(self):
         driver = webdriver.Firefox()
         driver.get(self._url)
         content = driver.page_source
         soup = BeautifulSoup(content, features="html.parser")
-        self._table = soup.find("table", {"class":"items"})
+        self._table = soup.find("table", {"class": "items"})
         self._scrape_table("odd")
         self._scrape_table("even")
         for d in self._player_dict:
