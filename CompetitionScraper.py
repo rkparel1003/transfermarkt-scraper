@@ -1,6 +1,7 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
 
+from ClubScraper import ClubScraper
 
 class CompetitionScraper:
     def __init__(self, competition_url):
@@ -15,7 +16,7 @@ class CompetitionScraper:
             club_link = club_link.replace("startseite", "kader")
             self.teams.append(club_link)
 
-    def scrape_club(self):
+    def scrape_competition(self):
         driver = webdriver.Firefox()
         driver.get(self._url)
         content = driver.page_source
@@ -24,12 +25,24 @@ class CompetitionScraper:
         self._scrape_table("odd")
         self._scrape_table("even")
 
+    def scrape_club(self, competition_index):
+        clubScraper = ClubScraper(self.teams[0])
+        clubScraper.scrape_club()
+
     def __str__(self):
         return '\n'.join(map(str,self.teams))
+
+    def __getitem__(self, item):
+        return self.teams[item]
+
+    def __setitem__(self, key, value):
+        pass
+
 
 if __name__ == "__main__":
     header = "https://www.transfermarkt.us"
     url = "https://www.transfermarkt.us/serie-a/startseite/wettbewerb/IT1"
     scraper = CompetitionScraper(url)
-    scraper.scrape_club()
-    print(str(scraper))
+    scraper.scrape_competition()
+    scraper.scrape_club(0)
+
