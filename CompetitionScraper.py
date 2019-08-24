@@ -7,14 +7,15 @@ class CompetitionScraper:
     def __init__(self, competition_url):
         self._url = competition_url
         self._table = None
-        self.teams = []
+        self.teams = dict()
 
     def _scrape_table(self, row_type):
         for player in self._table.findAll("tr", {"class": row_type}):
             club_tag = player.find_next("a", {"class":"vereinprofil_tooltip tooltipstered"})
+            club_name = club_tag.contents[0]["alt"]
             club_link = header + club_tag["href"] + "/plus/1"
             club_link = club_link.replace("startseite", "kader")
-            self.teams.append(club_link)
+            self.teams[club_name] = club_link
 
     def scrape_competition(self):
         driver = webdriver.Firefox()
@@ -29,8 +30,9 @@ class CompetitionScraper:
         clubScraper = ClubScraper(self.teams[0])
         clubScraper.scrape_club()
 
-    def __str__(self):
-        return '\n'.join(map(str,self.teams))
+    def print_clubs(self):
+        for key in self.teams:
+            print(key, self.teams[key])
 
     def __getitem__(self, item):
         return self.teams[item]
@@ -44,5 +46,5 @@ if __name__ == "__main__":
     url = "https://www.transfermarkt.us/serie-a/startseite/wettbewerb/IT1"
     scraper = CompetitionScraper(url)
     scraper.scrape_competition()
-    scraper.scrape_club(0)
+    scraper.print_clubs()
 
