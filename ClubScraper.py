@@ -3,9 +3,10 @@ from bs4 import BeautifulSoup
 
 
 class ClubScraper:
-    def __init__(self, url):
+    def __init__(self, name, url):
         self._url = url
         self._table = None
+        self._club_name = name
         self._player_dict = dict()
         self._current_player_number = int()
 
@@ -94,5 +95,5 @@ class ClubScraper:
 
 if __name__ == "__main__":
     url = "https://www.transfermarkt.us/ac-milan/kader/verein/5/saison_id/2019/plus/1"
-    scraper = ClubScraper(url)
+    scraper = ClubScraper("club", url)
     scraper.scrape_club()
