@@ -9,6 +9,7 @@ class ClubScraper:
         self._club_name = name
         self._player_dict = dict()
         self._current_player_number = int()
+        self.driver = webdriver.Firefox()
 
     def _find_player_number(self, tag):
         number_tag = tag.find_next("td", {"class": "zentriert"})
@@ -82,9 +83,8 @@ class ClubScraper:
             self._scrape_row(player)
 
     def scrape_club(self):
-        driver = webdriver.Firefox()
-        driver.get(self._url)
-        content = driver.page_source
+        self.driver.get(self._url)
+        content = self.driver.page_source
         soup = BeautifulSoup(content, features="html.parser")
         self._table = soup.find("table", {"class": "items"})
         self._scrape_table("odd")
@@ -92,8 +92,5 @@ class ClubScraper:
         for d in self._player_dict:
             print(d, self._player_dict[d])
 
-
-if __name__ == "__main__":
-    url = "https://www.transfermarkt.us/ac-milan/kader/verein/5/saison_id/2019/plus/1"
-    scraper = ClubScraper("club", url)
-    scraper.scrape_club()
+    def __del__(self):
+        self.driver.quit()
