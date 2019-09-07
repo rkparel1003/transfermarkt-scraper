@@ -14,9 +14,23 @@ def generic_test_scrape(competition_url):
     club_scraper.scrape_club()
 
 
+def generic_test_scrape_and_insert(competition_url):
+    scraper = CompetitionScraper(competition_url)
+    scraper.scrape_competition()
+    club_name = next(iter(scraper.teams))
+    club_url = scraper.teams[club_name]
+    club_scraper = ClubScraper(club_name, club_url)
+    club_scraper.scrape_club()
+    club_scraper.insert_club_data()
+    club_scraper.print_database()
+
+
 class TestCompetitionScraper(TestCase):
     def test_scrapeIT1(self):
         generic_test_scrape(ScraperConstants.IT1_URL)
+
+    def test_scrapeIT1andInsert(self):
+        generic_test_scrape_and_insert(ScraperConstants.IT1_URL)
 
     def test_scrapeGB1(self):
         generic_test_scrape(ScraperConstants.GB1_URL)
