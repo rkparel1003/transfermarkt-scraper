@@ -4,6 +4,7 @@ from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
 SQLITE = 'sqlite'
 PLAYERS = 'players'
 
+
 class MyDatabase:
     DB_ENGINE = {
         SQLITE: 'sqlite:///{DB}'
@@ -72,12 +73,3 @@ class MyDatabase:
                     print(row)  # print(row[0], row[1], row[2])
                 result.close()
                 print("\n")
-
-def main():
-    dbms = MyDatabase(SQLITE, dbname="testdb.sqlite")
-    dbms.create_db_tables()
-    dbms.test_insert()
-    dbms.print_all_data(PLAYERS)
-
-if __name__ == "__main__":
-    main()
