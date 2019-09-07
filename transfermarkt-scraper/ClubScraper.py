@@ -1,6 +1,7 @@
 from selenium import webdriver
 from bs4 import BeautifulSoup
-
+import ScraperConstants
+import mydatabase
 
 class ClubScraper:
     def __init__(self, name, url):
@@ -10,6 +11,8 @@ class ClubScraper:
         self._player_dict = dict()
         self._current_player_number = int()
         self.driver = webdriver.Firefox()
+        self.dbms = mydatabase.MyDatabase(mydatabase.SQLITE, dbname="transfermarktdb.sqlite")
+        self.dbms.create_db_tables()
 
     def _find_player_number(self, tag):
         number_tag = tag.find_next("td", {"class": "zentriert"})
@@ -59,7 +62,7 @@ class ClubScraper:
 
     def _find_player_value(self, tag):
         value_tag = tag.find_next("td", {"class": "rechts hauptlink"})
-        self._player_dict[self._current_player_number]["value"] = value_tag.getText()
+        self._player_dict[self._current_player_number]["value"] = value_tag.getText(strip=True)
         return value_tag
 
     def _scrape_row(self, player):
@@ -89,8 +92,35 @@ class ClubScraper:
         self._table = soup.find("table", {"class": "items"})
         self._scrape_table("odd")
         self._scrape_table("even")
-        for d in self._player_dict:
-            print(d, self._player_dict[d])
+
+    def _get_player_id(self):
+        player_id = ScraperConstants.max_id
+        ScraperConstants.max_id += 1
+        return player_id
+
+    def _create_insert_query(self, player: dict):
+        player_id = self._get_player_id()
+        number = player['number']
+        name = player['name']
+        nationality = player['nationality']
+        position = player['position']
+        birthday = player['birthday']
+        height = player['height']
+        join_date = player['join_date']
+        contract = player['contract']
+        price = player['value']
+        return "INSERT INTO 'players'(id, team_name, number, name, nationality, position, birthday, height, join_date, contract, price) " \
+                       f"VALUES('{player_id}', '{self._club_name}', '{number}', '{name}', '{nationality}', '{position}', '{birthday}', '{height}', '{join_date}', '{contract}', '{price}');"
+
+    def insert_club_data(self):
+        for key in self._player_dict:
+            player = self._player_dict[key]
+            insert_query = self._create_insert_query(player)
+            self.dbms.execute_query(insert_query)
+
+    def print_database(self):
+        self.dbms.print_all_data(mydatabase.PLAYERS)
 
     def __del__(self):
         self.driver.quit()
+

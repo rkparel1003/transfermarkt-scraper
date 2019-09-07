@@ -30,6 +30,7 @@ class MyDatabase:
         metaData = MetaData()
         players = Table(PLAYERS, metaData,
                         Column('id', Integer, primary_key=True),
+                        Column('team_name', String),
                         Column('number', Integer),
                         Column('name', String),
                         Column('nationality', String),
@@ -74,7 +75,6 @@ class MyDatabase:
 
 def main():
     dbms = MyDatabase(SQLITE, dbname="testdb.sqlite")
-
     dbms.create_db_tables()
     dbms.test_insert()
     dbms.print_all_data(PLAYERS)
