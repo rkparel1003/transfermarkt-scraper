@@ -52,8 +52,8 @@ class CompetitionScraper:
     def _insert_club_data(self, club_name, players):
         for key in players:
             player = players[key]
-            insert_query = self._create_insert_query(club_name, player)
-            self.dbms.execute_query(insert_query)
+            insert_query_values = self._create_insert_query(club_name, player)
+            self.dbms.execute_query(insert_query_values, ScraperConstants.PLAYER_INSERT)
 
     '''
         Creates the insert query for players.
@@ -71,9 +71,10 @@ class CompetitionScraper:
         join_date = player['join_date']
         contract = player['contract']
         price = player['value']
-        sql_query_header = "INSERT INTO 'players'(id, team_name, number, name, nationality, position, birthday, height, join_date, contract, price) "
-        sql_query_values = f"VALUES('{player_id}', '{club_name}', '{number}', '{name}', '{nationality}', '{position}', '{birthday}', '{height}', '{join_date}', '{contract}', '{price}');"
-        return sql_query_header + sql_query_values
+        return player_id, club_name, number, name, nationality, position, birthday, height, join_date, contract, price
+
+    def single_insert(self, query, values=None):
+        self.dbms.execute_query(values, query)
 
     def _get_player_id(self):
         player_id = ScraperConstants.max_id
