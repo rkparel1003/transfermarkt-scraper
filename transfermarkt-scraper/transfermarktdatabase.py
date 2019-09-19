@@ -4,6 +4,7 @@ from sqlalchemy import Table, Column, Integer, String, MetaData, ForeignKey
 SQLITE = 'sqlite'
 PLAYERS = 'players'
 
+
 class MyDatabase:
     DB_ENGINE = {
         SQLITE: 'sqlite:///{DB}'
@@ -19,12 +20,6 @@ class MyDatabase:
             print(self.db_engine)
         else:
             print("DBType is not found in DB_ENGINE")
-
-    def test_insert(self):
-        query = "INSERT INTO 'players'(id, number, name, nationality, position, birthday, height, join_date, contract, price) "\
-                "VALUES (0, 5, 'Ryan Parel', 'United States', 'Defender', '10-03-98', '5-11', '9-05-2019', '9-05-2020', '$50.00m');"
-        self.execute_query(query)
-        self.print_all_data(PLAYERS)
 
     def create_db_tables(self):
         metaData = MetaData()
@@ -48,13 +43,16 @@ class MyDatabase:
             print("Error occured during Table creation!")
             print(e)
 
-    def execute_query(self, query=''):
+    def execute_query(self, values=None, query=''):
         if query == '': return
         print(query)
 
         with self.db_engine.connect() as connection:
             try:
-                connection.execute(query)
+                if values:
+                    connection.execute(query, values)
+                else:
+                    connection.execute(query)
             except Exception as e:
                 print(e)
 
@@ -72,12 +70,3 @@ class MyDatabase:
                     print(row)  # print(row[0], row[1], row[2])
                 result.close()
                 print("\n")
-
-def main():
-    dbms = MyDatabase(SQLITE, dbname="testdb.sqlite")
-    dbms.create_db_tables()
-    dbms.test_insert()
-    dbms.print_all_data(PLAYERS)
-
-if __name__ == "__main__":
-    main()

@@ -23,15 +23,13 @@ def generic_test_scrape_and_insert(competition_url):
     club_scraper.scrape_club()
     club_scraper.insert_club_data()
     club_scraper.print_database()
-
-
 class TestCompetitionScraper(TestCase):
     def test_scrapeIT1(self):
         generic_test_scrape(ScraperConstants.IT1_URL)
 
     def test_scrapeIT1andInsert(self):
         generic_test_scrape_and_insert(ScraperConstants.IT1_URL)
-
+        
     def test_scrapeGB1(self):
         generic_test_scrape(ScraperConstants.GB1_URL)
 
