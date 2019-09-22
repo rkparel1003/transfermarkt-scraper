@@ -4,17 +4,17 @@ from typing import MutableMapping, Optional, Dict
 
 from ClubScraper import ClubScraper
 import ScraperConstants
-import transfermarktdatabase
+import transfermarktdatabase as db
+
 
 
 class CompetitionScraper:
-    def __init__(self, competition_url: str):
+    def __init__(self, competition_url: str, dbms: db.TransfermarktDatabase):
         self._url = competition_url
         self._table = None
-        self.teams = Dict[str, str]
+        self.teams = dict()
         self.driver = webdriver.Firefox()
-        self.dbms = transfermarktdatabase.MyDatabase(transfermarktdatabase.SQLITE, dbname="transfermarktdb.sqlite")
-        self.dbms.create_db_tables()
+        self.dbms = dbms
 
     '''
         Pulls data from the rows of the table.
@@ -96,7 +96,7 @@ class CompetitionScraper:
     '''
         Gets the unique ID for the player id.
     '''
-    def _get_player_id() -> int:
+    def _get_player_id(self) -> int:
         player_id = ScraperConstants.max_id
         ScraperConstants.max_id += 1
         return player_id
@@ -112,7 +112,7 @@ class CompetitionScraper:
         Calls the function in transfermarktdatabase to print out all player rows.
     '''
     def print_database(self) -> None:
-        self.dbms.print_all_data(transfermarktdatabase.PLAYERS)
+        self.dbms.print_all_data(db.PLAYERS)
 
     def __getitem__(self, item: str) -> str:
         return self.teams[item]

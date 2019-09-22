@@ -5,7 +5,7 @@ SQLITE = 'sqlite'
 PLAYERS = 'players'
 
 
-class MyDatabase:
+class TransfermarktDatabase:
     DB_ENGINE = {
         SQLITE: 'sqlite:///{DB}'
     }
