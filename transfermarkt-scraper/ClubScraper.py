@@ -41,8 +41,7 @@ class ClubScraper:
     '''
     def _find_player_name(self, player: BeautifulSoup) -> None:
         player_name = player.find("img")["title"]
-        if "Joined" in player_name or "Returned" in player_name:
-            player_name = player.find("a", {"class": "spielprofil_tooltip tooltipstered"}).getText()
+        player_name = player.find("a", {"class": "spielprofil_tooltip tooltipstered"}).getText()
         self._player_dict[self._current_player_number]["name"] = player_name
 
     '''
