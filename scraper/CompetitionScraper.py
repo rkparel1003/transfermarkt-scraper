@@ -3,10 +3,8 @@ from typing import MutableMapping, Optional, Dict
 import requests
 from urllib.parse import urljoin
 
-# from ClubScraper import ClubScraper
 import scraper.ScraperConstants as ScraperConstants
-# import transfermarktdatabase as db
-
+import scraper.ClubScraper as ClubScraper
 
 
 class CompetitionScraper:
@@ -28,8 +26,7 @@ class CompetitionScraper:
                 self.teams[club_name] = club_link
 
     '''
-        Uses the selenium webdriver to scrape the competition url provided in 
-        CompetitionScraper's constructor.
+        Scrape all the teams off the provided competition_url
         Looks over all of the rows of players on this page.
     '''
     def scrape_competition(self) -> None:
@@ -38,14 +35,6 @@ class CompetitionScraper:
         self._table = soup.find("table", {"class": "items"})
         self._scrape_table("odd")
         self._scrape_table("even")
-        print(*self.teams, sep='\n')
-
-    '''
-        Scrapes all of the club urls in the teams dictionary.
-    '''
-    def insert_all_clubs_data(self) -> None:
-        for team_name in self.teams:
-            self._scrape_club(team_name)
 
     '''
         Creates a club scraper and scrapes the url that the club_name parameter
@@ -62,56 +51,6 @@ class CompetitionScraper:
     def print_clubs(self) -> None:
         for key in self.teams:
             print(key, self.teams[key])
-
-    '''
-        Loops over every player in the current club.
-        Calls for an insert query to be created with this players' data
-        Tells the dbms to execute the query.
-    '''
-    def _insert_club_data(self, club_name: str, players: MutableMapping[str, MutableMapping[str, str]]):
-        for key in players:
-            player = players[key]
-            insert_query_values = self._create_insert_query(club_name, player)
-            self.dbms.execute_query(insert_query_values, ScraperConstants.PLAYER_INSERT)
-
-    '''
-        Creates the insert query for players.
-        Pulls out every variable from the player dictionary and puts it into a string 
-        formatted as a SQL Insert statement.
-    '''
-    def _create_insert_query(self, club_name, player: MutableMapping[str, str]) -> tuple:
-        player_id = self._get_player_id()
-        number = player['number']
-        name = player['name']
-        nationality = player['nationality']
-        position = player['position']
-        birthday = player['birthday']
-        height = player['height']
-        join_date = player['join_date']
-        contract = player['contract']
-        price = player['value']
-        return player_id, club_name, number, name, nationality, position, birthday, height, join_date, contract, price
-
-    '''
-        Gets the unique ID for the player id.
-    '''
-    def _get_player_id(self) -> int:
-        player_id = ScraperConstants.max_id
-        ScraperConstants.max_id += 1
-        return player_id
-
-    '''
-        Performs a single insert query onto the player database.
-        values may or may not be provided.
-    '''
-    def single_insert(self, query, values: Optional[tuple] = None):
-        self.dbms.execute_query(values, query)
-
-    '''
-        Calls the function in transfermarktdatabase to print out all player rows.
-    '''
-    def print_database(self) -> None:
-        self.dbms.print_all_data(db.PLAYERS)
 
     def __getitem__(self, item: str) -> str:
         return self.teams[item]
