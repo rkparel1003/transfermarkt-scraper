@@ -1,20 +1,18 @@
-from selenium import webdriver
 from bs4 import BeautifulSoup
 from typing import MutableMapping, Optional, Dict
+import requests
 
-from ClubScraper import ClubScraper
-import ScraperConstants
-import transfermarktdatabase as db
+# from ClubScraper import ClubScraper
+import scraper.ScraperConstants as ScraperConstants
+# import transfermarktdatabase as db
 
 
 
 class CompetitionScraper:
-    def __init__(self, competition_url: str, dbms: db.TransfermarktDatabase):
+    def __init__(self, competition_url: str):
         self._url = competition_url
         self._table = None
         self.teams = dict()
-        self.driver = webdriver.Firefox()
-        self.dbms = dbms
 
     '''
         Pulls data from the rows of the table.
@@ -34,12 +32,12 @@ class CompetitionScraper:
         Looks over all of the rows of players on this page.
     '''
     def scrape_competition(self) -> None:
-        self.driver.get(self._url)
-        content = self.driver.page_source
+        content = requests.get(self._url)
         soup = BeautifulSoup(content, features="html.parser")
         self._table = soup.find("table", {"class": "items"})
         self._scrape_table("odd")
         self._scrape_table("even")
+        print(*self.teams, sep='\n')
 
     '''
         Scrapes all of the club urls in the teams dictionary.
@@ -119,9 +117,3 @@ class CompetitionScraper:
 
     def __setitem__(self, key: str, value: str) -> None:
         self.teams[key] = value
-
-    '''
-        When this class leaves scope it closes the selenium webdriver.
-    '''
-    def __del__(self) -> None:
-        self.driver.quit()
