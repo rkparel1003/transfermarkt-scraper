@@ -1,6 +1,7 @@
 from bs4 import BeautifulSoup
 from typing import MutableMapping, Optional, Dict
 import requests
+from urllib.parse import urljoin
 
 # from ClubScraper import ClubScraper
 import scraper.ScraperConstants as ScraperConstants
@@ -19,12 +20,12 @@ class CompetitionScraper:
         Reads from all odd rows and then all even rows in the order provided.
     '''
     def _scrape_table(self, row_type: str) -> None:
-        for player in self._table.findAll("tr", {"class": row_type}):
-            club_tag = player.find_next("a", {"class":"vereinprofil_tooltip tooltipstered"})
-            club_name = club_tag.contents[0]["alt"]
-            club_link = ScraperConstants.HEADER + club_tag["href"] + "/plus/1"
-            club_link = club_link.replace("startseite", "kader")
-            self.teams[club_name] = club_link
+        for club_row in self._table.findAll("tr", {"class": row_type}):
+            first_tag = club_row.find('td', {'class': 'hauptlink no-border-links hide-for-small hide-for-pad'})
+            for club in first_tag.findAll('a', {'class':'vereinprofil_tooltip'}):
+                club_name = club.get_text()
+                club_link = urljoin(ScraperConstants.HEADER, club['href'])
+                self.teams[club_name] = club_link
 
     '''
         Uses the selenium webdriver to scrape the competition url provided in 
@@ -32,7 +33,7 @@ class CompetitionScraper:
         Looks over all of the rows of players on this page.
     '''
     def scrape_competition(self) -> None:
-        content = requests.get(self._url)
+        content = requests.get(self._url, headers=ScraperConstants.HEADS).content
         soup = BeautifulSoup(content, features="html.parser")
         self._table = soup.find("table", {"class": "items"})
         self._scrape_table("odd")
