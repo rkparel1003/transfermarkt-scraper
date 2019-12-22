@@ -1,2 +1,5 @@
 .idea/
 *.sqlite
+*.pyc
+*/__pycache__/*
+.vscode/*

@@ -1,7 +1,6 @@
-from selenium import webdriver
 from bs4 import BeautifulSoup
 from typing import MutableMapping
-
+import requests
 
 class ClubScraper:
     def __init__(self, name: str, url: str):
@@ -10,7 +9,6 @@ class ClubScraper:
         self._club_name = name
         self._player_dict = dict()
         self._current_player_number = int()
-        self.driver = webdriver.Firefox()
 
     '''
         Extracts the player's number from the provided tag.
@@ -124,13 +122,9 @@ class ClubScraper:
         Scrapes over each row of the table and returns a dictionary of all players in this club.
     '''
     def scrape_club(self) -> MutableMapping[str, MutableMapping[str, str]]:
-        self.driver.get(self._url)
-        content = self.driver.page_source
+        content = requests.get(self._url)
         soup = BeautifulSoup(content, features="html.parser")
         self._table = soup.find("table", {"class": "items"})
         self._scrape_table("odd")
         self._scrape_table("even")
         return self._player_dict
-
-    def __del__(self):
-        self.driver.quit()
