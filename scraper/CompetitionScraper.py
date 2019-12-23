@@ -4,7 +4,7 @@ import requests
 from urllib.parse import urljoin
 
 import scraper.ScraperConstants as ScraperConstants
-import scraper.ClubScraper as ClubScraper
+from scraper.ClubScraper import ClubScraper
 
 
 class CompetitionScraper:
@@ -36,6 +36,10 @@ class CompetitionScraper:
         self._scrape_table("odd")
         self._scrape_table("even")
 
+    def scrape_players(self) -> None:
+        for name in self.teams:
+            self._scrape_club(name)
+
     '''
         Creates a club scraper and scrapes the url that the club_name parameter
         maps to in self.teams.
@@ -43,7 +47,6 @@ class CompetitionScraper:
     def _scrape_club(self, club_name: str) -> None:
         club_scraper = ClubScraper(club_name, self.teams[club_name])
         players = club_scraper.scrape_club()
-        self._insert_club_data(club_name, players)
 
     '''
         Prints out all key value pairs of (name, club_info dictionary).
