@@ -13,34 +13,49 @@ class ClubScraper:
         self._players = dict()
 
     '''
-        Extracts the player's number from this row
+        Extracts the player's number from the number column
     '''
     def _find_number(self, number_column: BeautifulSoup) -> str:
         number_tag = number_column.find_next("div", {"class": "rn_nummer"})
         return number_tag.getText() 
 
-
+    '''
+        Extracts player's name from the name column
+    '''
     def _find_name(self, name_column: BeautifulSoup) -> str:
         # posrela_tag = player_row.find_next('td', {'class': 'posrela'})
         name_tag = name_column.find_next('a', {'class': 'spielprofil_tooltip'})
         return name_tag.getText()
 
+    '''
+        Extracts the player's position from the name column
+    '''
     def _find_position(self, name_column: BeautifulSoup) -> str:
         return name_column.findAll('td')[-1].getText()
 
+    '''
+        Extracts the player's nationality (possibly multiple) from the nationality column
+    '''
     def _find_nationality(self, nat_column: BeautifulSoup) -> list:
         nationalities = nat_column.findAll('img')
         return [nat['title'] for nat in nationalities]
 
+    '''
+        Extracts the player's date of birth from the dob column
+    '''
     def _find_dob(self, dob_column: BeautifulSoup) -> str:
         return dob_column.getText()
 
+    '''
+        Extracts the player's value from the value column
+    '''
     def _find_value(self, value_column: BeautifulSoup) -> str:
         return value_column.getText()
 
     '''
         Each player is one row in the table.
-        Sequentially extracts each piece of data from this tag.
+        Sequentially extracts each piece of data from this row.
+        Return a new Player object that encapsulates all this data.
     '''
     def _scrape_row(self, player_row: BeautifulSoup) -> Player:
         player_data = player_row.findChildren('td')

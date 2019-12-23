@@ -1,4 +1,9 @@
 
+'''
+    Object that encapsulates all of a players data.
+    Player's data is retrieved from the table of players on club pages.
+'''
+
 class Player():
     def __init__(self, number: str, name: str, position: str, dob: str, nationalities: str, value: str):
         self.number = number
