@@ -11,8 +11,8 @@ from scraper.ClubScraper import ClubScraper
 
 
 class CompetitionScraper:
-    def __init__(self, competition_url: str):
-        self._url = competition_url
+    def __init__(self, competition_urls: list):
+        self._competitions = competition_urls
         self._table = None
         self.teams = dict()
         self.con = sqlite3.connect('./players.sqlite3')
@@ -40,11 +40,12 @@ class CompetitionScraper:
         Looks over all of the rows of players on this page.
     '''
     def scrape_competition(self) -> None:
-        content = requests.get(self._url, headers=ScraperConstants.HEADS).content
-        soup = BeautifulSoup(content, features="html.parser")
-        self._table = soup.find("table", {"class": "items"})
-        self._scrape_table("odd")
-        self._scrape_table("even")
+        for url in self._competitions:
+            content = requests.get(url, headers=ScraperConstants.HEADS).content
+            soup = BeautifulSoup(content, features="html.parser")
+            self._table = soup.find("table", {"class": "items"})
+            self._scrape_table("odd")
+            self._scrape_table("even")
 
     def scrape_players(self) -> None:
         for name in self.teams:
@@ -59,10 +60,10 @@ class CompetitionScraper:
         players = club_scraper.scrape_club()  
         for p in players:
             player_id = self.cur.lastrowid
-            print(f"Inserting {p.name} as {player_id}")
-            insert_values = (p.number, p.name, p.position, p.dob, str(p.nationalities), p.value)
+            insert_values = (club_name, p.number, p.name, p.position, p.dob, str(p.nationalities), p.value)
             self.cur.execute(ScraperConstants.INSERT_PLAYER_QUERY, insert_values)
         self.con.commit()
+
     '''
         Prints out all key value pairs of (name, club_info dictionary).
     '''
