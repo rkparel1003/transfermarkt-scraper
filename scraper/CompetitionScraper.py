@@ -3,6 +3,9 @@ from typing import MutableMapping, Optional, Dict
 import requests
 from urllib.parse import urljoin
 
+import sqlite3
+
+
 import scraper.ScraperConstants as ScraperConstants
 from scraper.ClubScraper import ClubScraper
 
@@ -12,6 +15,13 @@ class CompetitionScraper:
         self._url = competition_url
         self._table = None
         self.teams = dict()
+        self.con = sqlite3.connect('./players.sqlite3')
+        self.cur = self.con.cursor()
+        self._create_table()
+
+    def _create_table(self) -> None:
+        self.cur.execute(ScraperConstants.CREATE_TABLE_QUERY)
+        self.con.commit()
 
     '''
         Pulls data from the rows of the table.
@@ -46,8 +56,13 @@ class CompetitionScraper:
     '''
     def _scrape_club(self, club_name: str) -> None:
         club_scraper = ClubScraper(club_name, self.teams[club_name])
-        players = club_scraper.scrape_club()
-
+        players = club_scraper.scrape_club()  
+        for p in players:
+            player_id = self.cur.lastrowid
+            print(f"Inserting {p.name} as {player_id}")
+            insert_values = (p.number, p.name, p.position, p.dob, str(p.nationalities), p.value)
+            self.cur.execute(ScraperConstants.INSERT_PLAYER_QUERY, insert_values)
+        self.con.commit()
     '''
         Prints out all key value pairs of (name, club_info dictionary).
     '''
