@@ -10,7 +10,7 @@ class ClubScraper:
         self._url = url
         self._table = None
         self._club_name = name
-        self._players = dict()
+        self._players = list()
 
     '''
         Extracts the player's number from the number column
@@ -50,7 +50,7 @@ class ClubScraper:
         Extracts the player's value from the value column
     '''
     def _find_value(self, value_column: BeautifulSoup) -> str:
-        return value_column.getText()
+        return value_column.getText().strip()
 
     '''
         Each player is one row in the table.
@@ -73,13 +73,14 @@ class ClubScraper:
     '''
     def _scrape_table(self, row_type: str) -> None:
         for player in self._table.findAll("tr", {"class": row_type}):
-            print(self._scrape_row(player))
-
+            player_data = self._scrape_row(player)
+            self._players.append(player_data)
+        
     '''
         Extracts the table of player data from the url provided in the constructor.
         Scrapes over each row of the table and returns a dictionary of all players in this club.
     '''
-    def scrape_club(self) -> MutableMapping[str, MutableMapping[str, str]]:
+    def scrape_club(self) -> list():
         content = requests.get(self._url, headers=ScraperConstants.HEADS).content
         soup = BeautifulSoup(content, features="html.parser")
         self._table = soup.find("table", {"class": "items"})
