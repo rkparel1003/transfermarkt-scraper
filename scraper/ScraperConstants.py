@@ -14,9 +14,12 @@ IT1_URL: Final[str] = "https://www.transfermarkt.us/serie-a/startseite/wettbewer
 L1_URL: Final[str] = "https://www.transfermarkt.us/1-bundesliga/startseite/wettbewerb/L1"
 FR1_URL: Final[str] = "https://www.transfermarkt.us/ligue-1/startseite/wettbewerb/FR1"
 
+ALL_LEAGE_URLS: Final[list] = [GB1_URL, ES1_URL, IT1_URL, FR1_URL]
+
 CREATE_TABLE_QUERY: Final[str] = """
     CREATE TABLE players(
         id integer PRIMARY KEY,
+        club_name text,
         number text,
         name text,
         position text,
@@ -27,6 +30,6 @@ CREATE_TABLE_QUERY: Final[str] = """
 
 INSERT_PLAYER_QUERY: Final[str] = """
         INSERT INTO players
-        (number, name, position, dob, nationalities, value)
-        VALUES (?, ?, ?, ?, ?, ?)
+        (club_name, number, name, position, dob, nationalities, value)
+        VALUES (?, ?, ?, ?, ?, ?, ?)
     """       
