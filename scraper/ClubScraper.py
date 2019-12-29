@@ -1,5 +1,5 @@
 from bs4 import BeautifulSoup
-from typing import MutableMapping
+from typing import List
 import requests
 
 import scraper.ScraperConstants as ScraperConstants
@@ -36,7 +36,7 @@ class ClubScraper:
     '''
         Extracts the player's nationality (possibly multiple) from the nationality column
     '''
-    def _find_nationality(self, nat_column: BeautifulSoup) -> list:
+    def _find_nationality(self, nat_column: BeautifulSoup) -> List[str]:
         nationalities = nat_column.findAll('img')
         return [nat['title'] for nat in nationalities]
 
@@ -80,7 +80,7 @@ class ClubScraper:
         Extracts the table of player data from the url provided in the constructor.
         Scrapes over each row of the table and returns a dictionary of all players in this club.
     '''
-    def scrape_club(self) -> list():
+    def scrape_club(self) -> List[Player]:
         content = requests.get(self._url, headers=ScraperConstants.HEADS).content
         soup = BeautifulSoup(content, features="html.parser")
         self._table = soup.find("table", {"class": "items"})
