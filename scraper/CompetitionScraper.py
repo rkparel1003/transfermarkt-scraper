@@ -4,6 +4,7 @@ import requests
 from urllib.parse import urljoin
 
 import sqlite3
+import sqlalchemy as db
 
 
 import scraper.ScraperConstants as ScraperConstants
@@ -15,13 +16,26 @@ class CompetitionScraper:
         self._competitions = competition_urls
         self._table = None
         self.teams = dict()
-        self.con = sqlite3.connect('./players.sqlite3')
-        self.cur = self.con.cursor()
-        self._create_table()
 
-    def _create_table(self) -> None:
-        self.cur.execute(ScraperConstants.CREATE_TABLE_QUERY)
-        self.con.commit()
+        self.engine = db.create_engine('sqlite:///players.sqlite3')
+        self.connection = self.engine.connect()
+
+        self.players_table = self._create_table()
+
+    def _create_table(self) -> db.Table:
+        metadata = db.MetaData()
+        player_table = db.Table('players', metadata,
+                                db.Column('id', db.Integer(), primary_key=True),
+                                db.Column('club', db.String(255), nullable=False),
+                                db.Column('number', db.String(255), nullable=False),
+                                db.Column('name', db.String(255), nullable=False),
+                                db.Column('position', db.String(255), nullable=False),
+                                db.Column('dob', db.String(255), nullable=False),
+                                db.Column('nationalities', db.String(255), nullable=False),
+                                db.Column('value', db.String(255), nullable=False)
+                                )
+        metadata.create_all(self.engine)
+        return player_table
 
     '''
         Pulls data from the rows of the table.
@@ -59,10 +73,9 @@ class CompetitionScraper:
         club_scraper = ClubScraper(club_name, self.teams[club_name])
         players = club_scraper.scrape_club()  
         for p in players:
-            player_id = self.cur.lastrowid
             insert_values = (club_name, p.number, p.name, p.position, p.dob, str(p.nationalities), p.value)
-            self.cur.execute(ScraperConstants.INSERT_PLAYER_QUERY, insert_values)
-        self.con.commit()
+            query = db.insert(self.players_table).values(club=club_name, number=p.number, name=p.name, position=p.position, dob=p.dob, nationalities=str(p.nationalities), value=p.value)
+            self.connection.execute(query)
 
     '''
         Prints out all key value pairs of (name, club_info dictionary).
